@@ -22,12 +22,16 @@ def cmd_detect(args):
         run_camera_mode(model, camera_id=args.camera_id)
     elif args.image:
         result = classify_image_file(args.image, model)
+        t = result["threshold"]
+        e = result["error"]
+        # Confidence: how far the error is from the threshold, as a percentage of threshold
+        confidence = abs(result["margin"]) / t * 100
+        confidence_str = f"{confidence:.0f}% {'above' if e > t else 'below'} threshold"
         print()
-        print(f"  Image:     {result['path']}")
-        print(f"  Result:    {result['label']}")
-        print(f"  Error:     {result['error']}")
-        print(f"  Threshold: {result['threshold']}")
-        print(f"  Margin:    {result['margin']}  (positive = more face-like)")
+        print(f"  Image:      {result['path']}")
+        print(f"  Result:     {result['label']}")
+        print(f"  Error:      {e}  (threshold: {t})")
+        print(f"  Confidence: {confidence_str}")
         print()
     else:
         print("Error: provide --image <path> or --camera", file=sys.stderr)

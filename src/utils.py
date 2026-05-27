@@ -2,6 +2,9 @@ import os
 import numpy as np
 from PIL import Image
 
+# Allow very large images without treating them as decompression bombs
+Image.MAX_IMAGE_PIXELS = None
+
 try:
     from tqdm import tqdm
     _HAS_TQDM = True
