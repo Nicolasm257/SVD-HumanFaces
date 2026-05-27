@@ -1,12 +1,22 @@
 import os
 import time
 import numpy as np
-from src.utils import load_dataset
+from src.utils import load_dataset, normalize_vector
 
 
 def build_data_matrix(vectors: np.ndarray) -> tuple:
-    mean_face = vectors.mean(axis=1)
-    A_centered = vectors - mean_face[:, np.newaxis]
+    # Normalize each image to zero mean, unit variance before building the subspace.
+    # This makes the SVD capture facial structure (edges, contours, symmetry)
+    # rather than global illumination levels, which improves non-face rejection.
+    normalized = []
+    for i in range(vectors.shape[1]):
+        v = normalize_vector(vectors[:, i])
+        if v is not None:
+            normalized.append(v)
+
+    A = np.column_stack(normalized).astype(np.float32)
+    mean_face = A.mean(axis=1)
+    A_centered = A - mean_face[:, np.newaxis]
     return A_centered, mean_face.astype(np.float32)
 
 

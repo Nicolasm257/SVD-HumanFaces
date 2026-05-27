@@ -62,3 +62,15 @@ def get_crop_rect(frame_shape: tuple) -> tuple:
     y1 = (h - sq) // 2
     x1 = (w - sq) // 2
     return (x1, y1), (x1 + sq, y1 + sq)
+
+
+def normalize_vector(x: np.ndarray) -> np.ndarray:
+    """Per-image normalization: zero mean, unit variance.
+
+    Removes global illumination so the face subspace captures structure,
+    not absolute pixel values. Returns None for uniform images (std ≈ 0).
+    """
+    sigma = float(x.std())
+    if sigma < 1.0:
+        return None
+    return ((x - x.mean()) / sigma).astype(np.float32)

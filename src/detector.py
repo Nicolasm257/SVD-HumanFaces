@@ -1,6 +1,6 @@
 import os
 import numpy as np
-from src.utils import load_image_as_vector, preprocess_frame, get_crop_rect
+from src.utils import load_image_as_vector, preprocess_frame, get_crop_rect, normalize_vector
 
 
 def load_model(path: str) -> dict:
@@ -22,8 +22,13 @@ def load_model(path: str) -> dict:
 
 def compute_reconstruction_error(x: np.ndarray, U_k: np.ndarray,
                                   mean_face: np.ndarray) -> float:
-    # Center the image vector
-    centered = x - mean_face
+    # Normalize per-image (must match training preprocessing)
+    x_norm = normalize_vector(x)
+    if x_norm is None:
+        return float("inf")  # uniform image → not a face
+
+    # Center using the mean of normalized training faces
+    centered = x_norm - mean_face
     # Project onto the face subspace (coordinates in eigenface basis)
     coords = U_k.T @ centered
     # Reconstruct from the face subspace
