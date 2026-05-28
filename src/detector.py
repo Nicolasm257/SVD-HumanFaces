@@ -1,4 +1,5 @@
 import os
+from collections import deque
 import numpy as np
 from src.utils import load_image_as_vector, preprocess_frame, get_crop_rect, normalize_vector
 
@@ -70,6 +71,8 @@ def run_camera_mode(model: dict, camera_id: int = 0) -> None:
 
     print("Camera active. Press Q to quit.")
 
+    error_history = deque(maxlen=7)
+
     while True:
         ret, frame = cap.read()
         if not ret:
@@ -77,7 +80,9 @@ def run_camera_mode(model: dict, camera_id: int = 0) -> None:
 
         x = preprocess_frame(frame)
         error = compute_reconstruction_error(x, U_k, mean_face)
-        label = classify(error, threshold)
+        error_history.append(error)
+        smoothed_error = float(np.mean(error_history))
+        label = classify(smoothed_error, threshold)
 
         pt1, pt2 = get_crop_rect(frame.shape)
         is_face = label == "Human Face"
@@ -95,7 +100,7 @@ def run_camera_mode(model: dict, camera_id: int = 0) -> None:
         h = frame.shape[0]
         cv2.putText(
             frame,
-            f"Error: {error:.1f}  |  Threshold: {threshold:.1f}",
+            f"Error: {smoothed_error:.1f} (raw: {error:.1f})  |  Threshold: {threshold:.1f}",
             (10, h - 15),
             cv2.FONT_HERSHEY_SIMPLEX, 0.55, (220, 220, 220), 1, cv2.LINE_AA,
         )

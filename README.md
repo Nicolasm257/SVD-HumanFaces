@@ -22,13 +22,16 @@ SVD-HumanFaces/
 │   ├── utils.py       # image loading, preprocessing, per-image normalization
 │   ├── train.py       # SVD training pipeline, threshold calibration, model export
 │   └── detector.py    # reconstruction error classifier, webcam loop
+├── models/
+│   ├── face_model.npz          # pre-trained SVD model (k=512, θ=27.79)
+│   ├── scree.png
+│   ├── explained_variance.png
+│   └── error_hist.png
 ├── main.py            # CLI entry point (train / detect --image / detect --camera)
-├── requirements.txt
-└── docs/
-    └── Final Document.docx     # full academic paper
+└── requirements.txt
 ```
 
-> **Note:** `data/` (training images) and `models/` (trained model) are excluded from this repository. See dataset setup below.
+> **Note:** `data/` (training images) is excluded from this repository. A pre-trained model is included in `models/` — training is optional.
 
 ---
 
@@ -57,7 +60,9 @@ data/
 
 ## Usage
 
-### 1. Train the model
+### 1. Train the model *(optional)*
+
+A pre-trained model is included in `models/face_model.npz`. Training is only needed if you want to retrain from scratch.
 
 ```bash
 python main.py train --data-dir "data/Human Faces Dataset/Real Images"
@@ -139,4 +144,4 @@ The classifier operates on a global 100×100 pixel representation. Any image who
 
 ## Academic context
 
-This project was developed for an Applied Mathematics course to demonstrate the connection between Singular Value Decomposition and practical computer vision. The full mathematical derivation, experimental results, and limitations analysis are documented in `docs/Final Document.docx`.
+This project was developed for an Applied Mathematics course to demonstrate the connection between Singular Value Decomposition and practical computer vision.
